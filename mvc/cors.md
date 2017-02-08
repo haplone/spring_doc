@@ -1,7 +1,9 @@
 # spring MVC cors跨域实现源码解析
 
 名词解释：跨域资源共享（Cross-Origin Resource Sharing）
+
 简单说就是只要协议、IP、http方法任意一个不同就是跨域。
+
 spring MVC自4.2开始添加了跨域的支持。
 
 跨域具体的定义请移步https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Access_control_CORS查看
@@ -60,42 +62,64 @@ public class AccountController {
 
 ## 涉及概念
 CorsConfiguration 具体封装跨域配置信息的pojo
+
 CorsConfigurationSource request与跨域配置信息映射的容器
+
 CorsProcessor 具体进行跨域操作的类
+
 诺干跨域配置信息初始化类
+
 诺干跨域使用的Adapter
+
 
 ### 涉及的java类:
 封装信息的pojo
+
 CorsConfiguration
 
+
 存储request与跨域配置信息的容器
+
 CorsConfigurationSource、UrlBasedCorsConfigurationSource
 
+
 具体处理类
+
 CorsProcessor、DefaultCorsProcessor
+
 
 CorsUtils
 
+
 实现OncePerRequestFilter接口的Adapter
+
 CorsFilter
 
+
 校验request是否cors，并封装对应的Adapter
+
 AbstractHandlerMapping、包括内部类PreFlightHandler、CorsInterceptor
 
+
 读取CrossOrigin注解信息
+
 AbstractHandlerMethodMapping、RequestMappingHandlerMapping
 
+
 从xml文件中读取跨域配置信息
+
 CorsBeanDefinitionParser
 
+
 跨域注册辅助类
+
 MvcNamespaceUtils
 
 
 ## debug分析
 
 要看懂代码我们需要先了解下封装跨域信息的pojo--CorsConfiguration
+
 这边是一个非常简单的pojo，除了跨域对应的几个属性，就只有combine、checkOrigin、checkHttpMethod、checkHeaders。
 
 属性都是多值组合使用的。
@@ -117,18 +141,26 @@ MvcNamespaceUtils
 ```
 
 combine是将跨域信息进行合并
+
 3个check方法分别是核对request中的信息是否包含在允许范围内
 
 ### 配置初始化
 
 在系统启动时通过CorsBeanDefinitionParser解析配置文件；
+
 加载RequestMappingHandlerMapping时，通过InitializingBean的afterProperties的钩子调用initCorsConfiguration初始化注解信息；
 
 #### 配置文件初始化
 在CorsBeanDefinitionParser类的parse方法中打一个断点。
+
+方法中打一个断点
+
 通过代码可以看到这边解析<mvc:cors>中的定义信息。
+
 跨域信息的配置可以以path为单位定义多个映射关系。
+
 解析时如果没有定义则使用默认设置
+
 ```java
 // CorsBeanDefinitionParser
 if (mappings.isEmpty()) {
@@ -153,7 +185,9 @@ if (mappings.isEmpty()) {
 ```
 
 解析完成后，通过MvcNamespaceUtils.registerCorsConfiguratoions注册
+
 这边走的是spring bean容器管理的统一流程，现在转化为BeanDefinition然后再实例化。
+
 ```java
 // MvcNamespaceUtils
 	public static RuntimeBeanReference registerCorsConfigurations(Map<String, CorsConfiguration> corsConfigurations, ParserContext parserContext, Object source) {
@@ -176,7 +210,9 @@ if (mappings.isEmpty()) {
 ```
 
 #### 注解初始化
+
 在RequestMappingHandlerMapping的initCorsConfiguration中扫描使用CrossOrigin注解的方法，并提取信息。
+
 ```java
 //
 	@Override
