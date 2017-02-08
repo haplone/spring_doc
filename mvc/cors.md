@@ -1,12 +1,12 @@
 # spring MVC cors跨域实现源码解析
 
-名词解释：跨域资源共享（Cross-Origin Resource Sharing）
+> 名词解释：跨域资源共享（Cross-Origin Resource Sharing）
 
 简单说就是只要协议、IP、http方法任意一个不同就是跨域。
 
 spring MVC自4.2开始添加了跨域的支持。
 
-跨域具体的定义请移步https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Access_control_CORS查看
+跨域具体的定义请移步[mozilla](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Access_control_CORS)查看
 
 ## 使用案例
 
@@ -123,7 +123,7 @@ public class AccountController {
 
 属性都是多值组合使用的。
 ```java
-	
+	// CorsConfiguration
 	public static final String ALL = "*";
 	// 允许的请求源
 	private List<String> allowedOrigins;
@@ -152,8 +152,9 @@ combine是将跨域信息进行合并
 #### 配置文件初始化
 在CorsBeanDefinitionParser类的parse方法中打一个断点。
 
-方法中打一个断点
+![CorsBeanDefinitionParser中的断点](pictures/CorsBeanDefinitionParser_breakpoint.png)
 
+![CorsBeanDefinitionParser的调用栈](pictures/CorsBeanDefinitionParser_call.png)
 通过代码可以看到这边解析<mvc:cors>中的定义信息。
 
 跨域信息的配置可以以path为单位定义多个映射关系。
@@ -213,7 +214,7 @@ if (mappings.isEmpty()) {
 在RequestMappingHandlerMapping的initCorsConfiguration中扫描使用CrossOrigin注解的方法，并提取信息。
 
 ```java
-//
+// RequestMappingHandlerMapping
 	@Override
 	protected CorsConfiguration initCorsConfiguration(Object handler, Method method, RequestMappingInfo mappingInfo) {
 		HandlerMethod handlerMethod = createHandlerMethod(handler, method);
