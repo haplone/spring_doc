@@ -75,45 +75,44 @@ public class AccountController {
 ### 涉及的java类:
 * 封装信息的pojo
 
-CorsConfiguration
+    CorsConfiguration
 
 
 * 存储request与跨域配置信息的容器
 
-CorsConfigurationSource、UrlBasedCorsConfigurationSource
+    CorsConfigurationSource、UrlBasedCorsConfigurationSource
 
 
-具体处理类
+* 具体处理类
 
-CorsProcessor、DefaultCorsProcessor
-
-
-CorsUtils
+    CorsProcessor、DefaultCorsProcessor
 
 
-实现OncePerRequestFilter接口的Adapter
-
-CorsFilter
+* CorsUtils
 
 
-校验request是否cors，并封装对应的Adapter
+* 实现OncePerRequestFilter接口的Adapter
 
-AbstractHandlerMapping、包括内部类PreFlightHandler、CorsInterceptor
-
-
-读取CrossOrigin注解信息
-
-AbstractHandlerMethodMapping、RequestMappingHandlerMapping
+    CorsFilter
 
 
-从xml文件中读取跨域配置信息
+* 校验request是否cors，并封装对应的Adapter
 
-CorsBeanDefinitionParser
+    AbstractHandlerMapping、包括内部类PreFlightHandler、CorsInterceptor
 
 
-跨域注册辅助类
+* 读取CrossOrigin注解信息
 
-MvcNamespaceUtils
+    AbstractHandlerMethodMapping、RequestMappingHandlerMapping 
+
+* 从xml文件中读取跨域配置信息
+
+    CorsBeanDefinitionParser
+
+
+* 跨域注册辅助类
+
+    MvcNamespaceUtils
 
 
 ## debug分析
@@ -236,5 +235,112 @@ if (mappings.isEmpty()) {
 
 ### 跨域请求处理
 
+HandlerMapping在正常处理完查找处理器后，在AbstractHandlerMapping.getHandler中校验是否是跨域请求,如果是分两种进行处理：
+
+* 如果是预请求，将处理器替换为内部类PreFlightHandler
+
+* 如果是正常请求，添加CorsInterceptor拦截器
+
+拿到处理器后，通过请求头是否包含Origin判断是否跨域,如果是跨域,通过UrlBasedCorsConfigurationSource获取跨域配置信息，并委托getCorsHandlerExecutionChain处理
+
+UrlBasedCorsConfigurationSource是CorsConfigurationSource的实现，从类名就可以猜出这边request与CorsConfiguration的映射是基于url的。getCorsConfiguration中提取request中的url后，逐一验证配置是否匹配url。
+
+```java
+	// UrlBasedCorsConfigurationSource
+	public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
+		String lookupPath = this.urlPathHelper.getLookupPathForRequest(request);
+		for(Map.Entry<String, CorsConfiguration> entry : this.corsConfigurations.entrySet()) {
+			if (this.pathMatcher.match(entry.getKey(), lookupPath)) {
+				return entry.getValue();
+			}
+		}
+		return null;
+	}
+
+	// AbstractHandlerMapping
+	public final HandlerExecutionChain getHandler(HttpServletRequest request) throws Exception {
+		Object handler = getHandlerInternal(request);
+		// ...
+
+		HandlerExecutionChain executionChain = getHandlerExecutionChain(handler, request);
+		if (CorsUtils.isCorsRequest(request)) {
+			CorsConfiguration globalConfig = this.corsConfigSource.getCorsConfiguration(request);
+			CorsConfiguration handlerConfig = getCorsConfiguration(handler, request);
+			CorsConfiguration config = (globalConfig != null ? globalConfig.combine(handlerConfig) : handlerConfig);
+			executionChain = getCorsHandlerExecutionChain(request, executionChain, config);
+		}
+		return executionChain;
+	}
+	// HttpHeaders
+	public static final String ORIGIN = "Origin";
+
+	// CorsUtils
+	public static boolean isCorsRequest(HttpServletRequest request) {
+		return (request.getHeader(HttpHeaders.ORIGIN) != null);
+	}
+```
+
+通过请求头的http方法是否options判断是否预请求，如果是使用PreFlightRequest替换处理器；如果是普通请求，添加一个拦截器CorsInterceptor。
+
+PreFlightRequest是CorsProcessor对于HttpRequestHandler的一个适配器。这样HandlerAdapter直接使用HttpRequestHandlerAdapter处理。
+
+CorsInterceptor 是CorsProcessor对于HnalderInterceptorAdapter的适配器。
+
+```java
+	// AbstractHandlerMapping
+	protected HandlerExecutionChain getCorsHandlerExecutionChain(HttpServletRequest request,
+			HandlerExecutionChain chain, CorsConfiguration config) {
+
+		if (CorsUtils.isPreFlightRequest(request)) {
+			HandlerInterceptor[] interceptors = chain.getInterceptors();
+			chain = new HandlerExecutionChain(new PreFlightHandler(config), interceptors);
+		}
+		else {
+			chain.addInterceptor(new CorsInterceptor(config));
+		}
+		return chain;
+	}
+
+
+	private class PreFlightHandler implements HttpRequestHandler {
+
+		private final CorsConfiguration config;
+
+		public PreFlightHandler(CorsConfiguration config) {
+			this.config = config;
+		}
+
+		@Override
+		public void handleRequest(HttpServletRequest request, HttpServletResponse response)
+				throws IOException {
+
+			corsProcessor.processRequest(this.config, request, response);
+		}
+	}
+
+
+	private class CorsInterceptor extends HandlerInterceptorAdapter {
+
+		private final CorsConfiguration config;
+
+		public CorsInterceptor(CorsConfiguration config) {
+			this.config = config;
+		}
+
+		@Override
+		public boolean preHandle(HttpServletRequest request, HttpServletResponse response,
+				Object handler) throws Exception {
+
+			return corsProcessor.processRequest(this.config, request, response);
+		}
+	}
+
+	// CorsUtils
+	public static boolean isPreFlightRequest(HttpServletRequest request) {
+		return (isCorsRequest(request) && request.getMethod().equals(HttpMethod.OPTIONS.name()) &&
+				request.getHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD) != null);
+	}
+
+```
 
 
