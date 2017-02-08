@@ -61,24 +61,24 @@ public class AccountController {
 ```
 
 ## 涉及概念
-CorsConfiguration 具体封装跨域配置信息的pojo
+* CorsConfiguration 具体封装跨域配置信息的pojo
 
-CorsConfigurationSource request与跨域配置信息映射的容器
+* CorsConfigurationSource request与跨域配置信息映射的容器
 
-CorsProcessor 具体进行跨域操作的类
+* CorsProcessor 具体进行跨域操作的类
 
-诺干跨域配置信息初始化类
+* 诺干跨域配置信息初始化类
 
-诺干跨域使用的Adapter
+* 诺干跨域使用的Adapter
 
 
 ### 涉及的java类:
-封装信息的pojo
+* 封装信息的pojo
 
 CorsConfiguration
 
 
-存储request与跨域配置信息的容器
+* 存储request与跨域配置信息的容器
 
 CorsConfigurationSource、UrlBasedCorsConfigurationSource
 
