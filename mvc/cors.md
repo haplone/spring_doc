@@ -216,7 +216,8 @@ if (mappings.isEmpty()) {
 
 在RequestMappingHandlerMapping的initCorsConfiguration中扫描使用CrossOrigin注解的方法，并提取信息。
 
-![RequestMappingHandlerMapping](picutures/RequestMappingHandlerMapping_initCorsConfiguration.png)
+![RequestMappingHandlerMapping](pictures/RequestMappingHandlerMapping_initCorsConfiguration.png)
+RequestMappingHandlerMapping_initCorsConfiguration
 ```java
 // RequestMappingHandlerMapping
 	@Override
@@ -348,4 +349,5 @@ CorsInterceptor 是CorsProcessor对于HnalderInterceptorAdapter的适配器。
 
 ```
 
+https://spring.io/blog/2015/06/08/cors-support-in-spring-framework
 
