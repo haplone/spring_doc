@@ -1,0 +1,16 @@
+# Spring MVC源码解析--HandlerMapping接口实现类职责分析
+
+AbstractHandlerMapping
+HandlerMapping接口的抽象实现。支持排序，包含默认处理器，拦截器，包括基于url映射的拦截器。
+
+AbstactHandlerMethodMapping
+定义request与HandlerMethod直接的映射。每一个处理器，都有子类维护着一个唯一的映射<T>,这边还只是一个泛型。
+
+RequestMappingInfoHandlerMapping
+将request与Handler直接的映射泛型具化为RequestMappingInfo
+
+RequestMappingHandlerMapping
+查找使用@Controller注解的类中，使用@RequestMapping的方法，并生成RequestMappingInfo实例
+
+
+
