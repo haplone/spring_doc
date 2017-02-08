@@ -22,7 +22,7 @@ BeanWrapper
 Spring 底层处理JavaBeans的核心接口。
 主要是供BeanFactory和DataBinder使用。
 提供对标准JavaBeans的分析、操作：设置、读取属性值；获取属性描述；查询属性是否可读、可写。
-可以设置多层属性。
+可以设置嵌套属性。
 public interface BeanWrapper extends ConfigurablePropertyAccessor {}
 
 
