@@ -152,9 +152,12 @@ combine是将跨域信息进行合并
 #### 配置文件初始化
 在CorsBeanDefinitionParser类的parse方法中打一个断点。
 
-![CorsBeanDefinitionParser中的断点](pictures/CorsBeanDefinitionParser_breakpoint.png)
+![CorsBeanDefinitionParser中的断点](pictures/CorsBeanDefinition_breakpoint.png)
 
 ![CorsBeanDefinitionParser的调用栈](pictures/CorsBeanDefinitionParser_call.png)
+
+CorsBeanDefinitionParser的调用栈
+
 通过代码可以看到这边解析<mvc:cors>中的定义信息。
 
 跨域信息的配置可以以path为单位定义多个映射关系。
@@ -213,6 +216,7 @@ if (mappings.isEmpty()) {
 
 在RequestMappingHandlerMapping的initCorsConfiguration中扫描使用CrossOrigin注解的方法，并提取信息。
 
+![RequestMappingHandlerMapping](picutures/RequestMappingHandlerMapping_initCorsConfiguration.png)
 ```java
 // RequestMappingHandlerMapping
 	@Override
