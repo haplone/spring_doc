@@ -4,35 +4,6 @@ java集合主要有3方面：不能重复的set、线性存储的列表、key-va
 
 其中set、list、queue都继承Collection接口。
 
-## set
-
-set的元素不能重复，也不保障顺序，Null只能有一个。
-所有Set几乎都是内部用一个Map来实现, 因为Map里的KeySet就是一个Set，而value是假值，全部使用同一个Object即可。
-Set的特征也继承了那些内部的Map实现的特征。
-
-
-set的有这么几个典型类：HashSet、TreeSet、ConcurrentSkipListSet、CopyOnWriteArraySet、LinkedHashSet。
-
-### HashSet
-主要用于快速查找，平时会用于数据去重。存入其中的对象必须定义hashCode()api。比较对象是否是重复是先比较hash code，如果一致才使用equals。
-HashSet：内部是HashMap。
-
-### TreeSet
-可以实现排序，底层实现是树结构。可以使用提供的Comparator进行排序。
-TreeSet：内部是TreeMap的SortedSet。
-
-### LinkedHashSet
-使用链表实现，查询速度与HashSet相同。遍历顺序是插入顺序。
-内部是LinkedHashMap。
-
-
-### ConcurrentSkipListSet
-内部是ConcurrentSkipListMap的并发优化的SortedSet。
-
-### CopyOnWriteArraySet：内部是CopyOnWriteArrayList的并发优化的Set，利用其addIfAbsent（）方法实现元素去重，如前所述该方法的性能很一般。
-
-### ConcurrentHashSet，本来也该有一个内部用ConcurrentHashMap的简单实现，但JDK偏偏没提供。Jetty就自己简单封了一个，Guava则直接用java.util.Collections.newSetFromMap（new ConcurrentHashMap（）） 实现。
-
 
 ## List
 
@@ -93,7 +64,7 @@ iterator（）时顺着哈希桶数组来遍历，看起来是个乱序。
 
 
 ### LinkedHashMap
-类似于HashMap，但是迭代遍历它时，取得“键值对”的顺序是其插入次序，或者是最近最少使用(LRU)的次序。只比HashMap慢一点。而在迭代访问时发而更快，因为它使用链表维护内部次序。
+类似于HashMap，但是迭代遍历它时，取得“键值对”的顺序是其插入次序，或者是最近最少使用(LRU)的次序。只比HashMap慢一点。而在迭代访问时反而更快，因为它使用链表维护内部次序。
 扩展HashMap，每个Entry增加双向链表，号称是最占内存的数据结构。
 
 支持iterator（）时按Entry的插入顺序来排序（如果设置accessOrder属性为true，则所有读写访问都排序）。
@@ -152,6 +123,38 @@ JDK6新增的并发优化的SortedMap，以SkipList结构实现。Concurrent包�
  典型的空间换时间。每次插入，都要决定在哪几层插入，同时，要决定要不要多盖一层楼。
 
  它的size（）同样不能随便调，会遍历来统计。
+
+
+
+
+## set
+
+set的元素不能重复，也不保障顺序，Null只能有一个。
+所有Set几乎都是内部用一个Map来实现, 因为Map里的KeySet就是一个Set，而value是假值，全部使用同一个Object即可。
+Set的特征也继承了那些内部的Map实现的特征。
+
+
+set的有这么几个典型类：HashSet、TreeSet、ConcurrentSkipListSet、CopyOnWriteArraySet、LinkedHashSet。
+
+### HashSet
+主要用于快速查找，平时会用于数据去重。存入其中的对象必须定义hashCode()api。比较对象是否是重复是先比较hash code，如果一致才使用equals。
+HashSet：内部是HashMap。
+
+### TreeSet
+可以实现排序，底层实现是树结构。可以使用提供的Comparator进行排序。
+TreeSet：内部是TreeMap的SortedSet。
+
+### LinkedHashSet
+使用链表实现，查询速度与HashSet相同。遍历顺序是插入顺序。
+内部是LinkedHashMap。
+
+
+### ConcurrentSkipListSet
+内部是ConcurrentSkipListMap的并发优化的SortedSet。
+
+### CopyOnWriteArraySet：内部是CopyOnWriteArrayList的并发优化的Set，利用其addIfAbsent（）方法实现元素去重，如前所述该方法的性能很一般。
+
+### ConcurrentHashSet，本来也该有一个内部用ConcurrentHashMap的简单实现，但JDK偏偏没提供。Jetty就自己简单封了一个，Guava则直接用java.util.Collections.newSetFromMap（new ConcurrentHashMap（）） 实现。
 
 ## Queue
 
