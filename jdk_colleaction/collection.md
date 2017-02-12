@@ -4,6 +4,7 @@ java集合主要有3方面：不能重复的set、线性存储的列表、key-va
 
 其中set、list、queue都继承Collection接口。
 
+需要补充时间复杂度
 
 ## List
 
@@ -152,9 +153,11 @@ TreeSet：内部是TreeMap的SortedSet。
 ### ConcurrentSkipListSet
 内部是ConcurrentSkipListMap的并发优化的SortedSet。
 
-### CopyOnWriteArraySet：内部是CopyOnWriteArrayList的并发优化的Set，利用其addIfAbsent（）方法实现元素去重，如前所述该方法的性能很一般。
+### CopyOnWriteArraySet
+内部是CopyOnWriteArrayList的并发优化的Set，利用其addIfAbsent（）方法实现元素去重，如前所述该方法的性能很一般。
 
-### ConcurrentHashSet，本来也该有一个内部用ConcurrentHashMap的简单实现，但JDK偏偏没提供。Jetty就自己简单封了一个，Guava则直接用java.util.Collections.newSetFromMap（new ConcurrentHashMap（）） 实现。
+### ConcurrentHashSet
+本来也该有一个内部用ConcurrentHashMap的简单实现，但JDK偏偏没提供。Jetty就自己简单封了一个，Guava则直接用java.util.Collections.newSetFromMap（new ConcurrentHashMap（）） 实现。
 
 ## Queue
 
