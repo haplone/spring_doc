@@ -1,6 +1,6 @@
 # java 集合小结
 
-java集合主要有3方面：不能重复的set、线性存储的列表、key-value结构的map。
+java集合主要有3方面：不能重复的set、线性存储的列表、key-value结构的map、队列。
 
 其中set、list、queue都继承Collection接口。
 
